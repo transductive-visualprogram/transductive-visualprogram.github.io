@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TVP - Transductive Visual Programming</title>
+    <meta
+      name="description"
+      content="Transductive Visual Programming - Evolving Tool Libraries from Experience for Spatial Reasoning"
+    />
+    <meta name="author" content="" />
+
+    <meta property="og:title" content="TVP - Transductive Visual Programming" />
+    <meta
+      property="og:description"
+      content="A novel visual programming framework that builds new tools from its own experience for spatial reasoning tasks."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwindcss.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Lato', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --primary: 222.2 47.4% 11.2%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+        --border: 214.3 31.8% 91.4%;
+        --ring: 222.2 84% 4.9%;
+        --radius: 0.5rem;
+      }
+
+      * {
+        border-color: hsl(var(--border));
+      }
+
+      body {
+        font-family: 'Lato', sans-serif;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+      }
+
+      .tab-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-size: 1rem;           
+        font-weight: 600;          
+        transition: all 0.2s;
+        background-color: transparent;
+        color: hsl(var(--muted-foreground));
+        border: 1px solid transparent;
+      }
+
+      .tab-btn:hover {
+        background-color: hsl(var(--muted));
+      }
+
+      .tab-btn.active {
+        background-color: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 0.5rem;
+        border: 1px solid hsl(var(--border));
+        padding: 1.5rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        margin-bottom: 1rem;
+      }
+
+      .finding-box {
+        background-color: #e6f2ff;
+        border-left: 4px solid #3b82f6;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 0 0.375rem 0.375rem 0;
+      }
+
+      .finding-box strong {
+        color: #1e40af;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+
+      th, td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid hsl(var(--border));
+      }
+
+      th {
+        background-color: hsl(var(--muted));
+        font-weight: 600;
+      }
+
+      .highlight-row {
+        background-color: #f0fdf4;
+      }
+
+      .best-value {
+        font-weight: 700;
+      }
+
+      .second-best {
+        text-decoration: underline;
+      }
+
+      .improve {
+        color: #16a34a;
+      }
+
+      .figure-container {
+        background-color: #fafafa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      .figure-caption {
+        font-size: 0.875rem;
+        color: hsl(var(--muted-foreground));
+        margin-top: 0.75rem;
+        line-height: 1.5;
+      }
+
+      .icon-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        border: 1px solid hsl(var(--border));
+        color: hsl(var(--foreground));
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .icon-link:hover {
+        background-color: hsl(var(--muted));
+      }
+
+      .citation-box {
+        background-color: #f8fafc;
+        border: 1px solid hsl(var(--border));
+        border-radius: 0.5rem;
+        padding: 1rem;
+        font-family: monospace;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        overflow-x: auto;
+        white-space: pre-wrap;
+      }
+
+      .placeholder-figure {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 2px dashed #93c5fd;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        text-align: center;
+        color: #3b82f6;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .method-figure {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        border: 1px solid hsl(var(--border));
+      }
+    
+      .two-panel-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        align-items: stretch;
+      }
+      
+      .two-panel-grid > div {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      
+      .two-panel-grid .figure-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .two-panel-grid .figure-container img {
+        flex: 1;
+        object-fit: contain;
+        min-height: 0;
+      }
+      
+      .two-panel-grid .overflow-x-auto {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .two-panel-grid table {
+        flex: 1;
+      }
+      
+      .three-panel-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        align-items: stretch;
+      }
+      
+      .three-panel-grid > div {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      
+      .three-panel-grid .figure-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .three-panel-grid .figure-container img {
+        flex: 1;
+        object-fit: contain;
+        min-height: 0;
+      }
+      
+      .figure-container {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .figure-container img {
+        width: 100%;
+        border-radius: 0.5rem;
+      }
+      
+      .figure-container .figure-caption {
+        margin-top: auto;
+        padding-top: 0.75rem;
+      }
+      
+      @media (max-width: 768px) {
+        .two-panel-grid,
+        .three-panel-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .aligned-grid {
+        display: grid;
+        gap: 1.5rem;
+        align-items: stretch;
+      }
+      
+      .aligned-grid > div {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      
+      .aligned-grid .figure-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .aligned-grid .figure-container img {
+        flex: 1;
+        object-fit: contain;
+        min-height: 0;
+      }
+      
+      .aligned-grid .overflow-x-auto {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .aligned-grid table {
+        flex: 1;
+      }
+      
+      @media (max-width: 768px) {
+        .aligned-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+
+      .video-container {
+        position: relative;
+        background: #000;
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+      
+      .video-container video {
+        width: 100%;
+        display: block;
+      }
+      
+      .video-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      
+      .video-container:hover .video-controls,
+      .video-container.paused .video-controls {
+        opacity: 1;
+      }
+      
+      .progress-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 3px;
+        cursor: pointer;
+        position: relative;
+      }
+      
+      .progress-bar {
+        height: 100%;
+        background: #3b82f6;
+        border-radius: 3px;
+        width: 0%;
+        transition: width 0.1s linear;
+        position: relative;
+      }
+      
+      .progress-bar::after {
+        content: '';
+        position: absolute;
+        right: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 12px;
+        height: 12px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      
+      .progress-container:hover .progress-bar::after {
+        opacity: 1;
+      }
+      
+      .controls-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      
+      .controls-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      
+      .control-btn {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+      }
+      
+      .control-btn:hover {
+        transform: scale(1.1);
+      }
+      
+      .time-display {
+        color: white;
+        font-size: 0.75rem;
+        font-family: monospace;
+      }
+      
+      .replay-overlay {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        display: none;
+        z-index: 10;
+      }
+      
+      .video-container.ended .replay-overlay {
+        display: block;
+      }
+      
+      .video-container.ended .play-overlay {
+        display: none;
+      }
+      
+      .replay-btn {
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,0.95);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        padding: 0;
+      }
+      
+      .replay-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      }
+      
+      .play-overlay {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        cursor: pointer;
+        z-index: 10;
+      }
+
+      .play-overlay-btn {
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,0.95);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      }
+
+      .play-overlay-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      }
+
+      .video-container.playing .play-overlay {
+        display: none;
+      }
+
+      html {
+        font-size: 18px;  /* Default = 16px */
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div id="root">
+      <div class="min-h-screen bg-white">
+        <!-- Header Section -->
+        <div class="container mx-auto px-6 pt-12 pb-4">
+          <!-- Publication Venue -->
+          <div class="text-center mb-2">
+            <span class="text-sm text-gray-500 uppercase tracking-wider"></span>
+            <!-- Venue to be added -->
+          </div>
+
+          <!-- Title -->
+          <h1 class="text-3xl md:text-4xl font-bold text-center mb-4">
+            Transductive Visual Programming:<br>
+            Evolving Tool Libraries from Experience for Spatial Reasoning
+          </h1>
+
+          <!-- Authors -->
+          <p class="text-center text-gray-600 mb-4">
+            <a href="https://danielwusg.github.io/" target="_blank" class="hover:text-blue-600">Shengguang Wu</a><sup>1</sup>,
+            <a href="https://ai.stanford.edu/~xhanwang/" target="_blank" class="hover:text-blue-600">Xiaohan Wang</a><sup>1</sup>,
+            <a href="https://cs.stanford.edu/~yuhuiz/" target="_blank" class="hover:text-blue-600">Yuhui Zhang</a><sup>1</sup>,
+            <a href="https://hao.computer/" target="_blank" class="hover:text-blue-600">Hao Zhu</a><sup>1</sup>,
+            <a href="https://ai.stanford.edu/~syyeung/" target="_blank" class="hover:text-blue-600">Serena Yeung-Levy</a><sup>1</sup>,
+          </p>
+          <p class="text-center text-gray-600 text-base mb-6">
+            <sup>1</sup>Stanford University &nbsp;&nbsp;
+          </p>
+
+          <!-- Links -->
+          <div class="flex justify-center gap-4 mb-2">
+            <a href="https://arxiv.org/abs/2512.20934" class="icon-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              Read Paper
+            </a>
+            <a href="https://github.com/transductive-visualprogram/tvp" class="icon-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+
+        <!-- Abstract Section -->
+        <div class="container mx-auto px-6 mt-2 mb-6">
+          <div class="card">
+            <h2 class="section-title">Abstract</h2>
+            <p class="text-gray-700 leading-relaxed">
+              Spatial reasoning in 3D scenes requires precise geometric calculations that challenge vision-language models.
+              Visual programming addresses this by decomposing problems into steps calling specialized tools,
+              yet existing methods rely on either fixed toolsets or speculative tool induction before solving problems, resulting in suboptimal programs and poor utilization of induced tools.
+              We present <strong>Transductive Visual Programming (TVP)</strong>, a novel framework that builds new tools from its own experience rather than speculation.
+              TVP first solves problems using basic tools while accumulating experiential solutions into an Example Library, then abstracts recurring patterns from these programs into reusable higher-level tools for an evolving Tool Library. This allows TVP to tackle new problems with increasingly powerful tools learned from experience.
+              On Omni3D-Bench, TVP achieves state-of-the-art performance, outperforming GPT-4o by <strong>22%</strong> and the previous best visual programming system by <strong>11%</strong>.
+              Our transductively learned tools are used <strong>5×</strong> more frequently as core program dependency than inductively created ones, demonstrating more effective tool discovery and reuse.
+              The evolved tools also show strong generalization to unseen spatial tasks, achieving superior performance on benchmarks from SpatialScore-Hard collection without any testset-specific modification.
+              Our work establishes experience-driven transductive tool creation as a powerful paradigm for building self-evolving visual programming agents that effectively tackle challenging spatial reasoning tasks.
+            </p>
+          </div>
+        </div>
+
+        <!-- Method Section -->
+        <div class="container mx-auto px-6 mb-6">
+          <div class="card">
+            <h2 class="section-title">Method: TVP's Dual-Library Architecture</h2>
+            <p class="text-gray-700 mb-4">
+              TVP implements a closed-loop paradigm via two interconnected libraries: an <strong>Example Library</strong> that accumulates program solutions as experience, and a <strong>Tool Library</strong> that maintains functions abstracted from these programs. The dual-libraries enable the circular <strong>program-tool-program</strong> cycle: solving problems generates experience, experience guides tool creation, and newly created tools improve future problem-solving.
+            </p>
+
+            <div class="method-figure">
+              <!-- Custom Video Player -->
+              <div class="video-container" id="methodVideoContainer">
+                <video id="methodVideo" preload="metadata" poster="imgs/method_two_phase_cycle.png">
+                  <source src="imgs/method_two_phase_cycle_animate.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                
+                <!-- Initial Play Overlay -->
+                <div class="play-overlay" id="playOverlay" onclick="playVideo()">
+                  <div class="play-overlay-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                  </div>
+                </div>
+                
+                <!-- Replay Overlay -->
+                <div class="replay-overlay" id="replayOverlay">
+                  <button class="replay-btn" onclick="replayVideo()" title="Replay Animation">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5">
+                      <polyline points="1 4 1 10 7 10"></polyline>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <!-- Video Controls -->
+                <div class="video-controls">
+                  <!-- Progress Bar -->
+                  <div class="progress-container" id="progressContainer" onclick="seekVideo(event)">
+                    <div class="progress-bar" id="progressBar"></div>
+                  </div>
+                  
+                  <!-- Controls Row -->
+                  <div class="controls-row">
+                    <div class="controls-left">
+                      <!-- Play/Pause Button -->
+                      <button class="control-btn" id="playPauseBtn" onclick="togglePlayPause()">
+                        <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <svg id="pauseIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none;">
+                          <rect x="6" y="4" width="4" height="16"></rect>
+                          <rect x="14" y="4" width="4" height="16"></rect>
+                        </svg>
+                      </button>
+                      
+                      <!-- Time Display -->
+                      <span class="time-display">
+                        <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                      </span>
+                    </div>
+                    
+                    <!-- Fullscreen Button -->
+                    <button class="control-btn" onclick="toggleFullscreen()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <p class="figure-caption">
+                <strong>Figure:</strong> TVP's dual-library architecture. <strong>(Phase I)</strong> Problem-solving and experience accumulation: For each query, TVP retrieves similar examples from the Example Library and generates programs using the current Tool Library; high-quality solutions join the Example Library. <strong>(Phase II)</strong> Tool abstraction: Accumulated examples are clustered, and common patterns are abstracted into new tools, which, if passed validation, are added to the Tool Library for future use. <strong style="color: #3b82f6; cursor: pointer;" onclick="playVideo()">Click to play the animation.</strong>
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Main Results Section -->
+        <div class="container mx-auto px-6 mb-6">
+          <div class="card">
+            <h2 class="section-title">Results on Omni3D-Bench</h2>
+            
+            <!-- Tabs -->
+            <div class="flex flex-wrap gap-2 mb-6 border-b pb-4">
+              <button class="tab-btn active" onclick="switchTab('tab1')">Main Results</button>
+              <button class="tab-btn" onclick="switchTab('tab2')">Program Analysis</button>
+              <button class="tab-btn" onclick="switchTab('tab3')">Complexity Effects</button>
+              <button class="tab-btn" onclick="switchTab('tab4')">Model Scaling</button>
+              <button class="tab-btn" onclick="switchTab('tab5')">Library Evolution</button>
+            </div>
+
+            <!-- Tab 1: Main Results Table -->
+            <div id="tab1" class="tab-content active">
+              <div class="finding-box">
+                <strong>TVP achieves state-of-the-art through experience-grounded tool creation.</strong>
+                On the challenging <a href="https://huggingface.co/datasets/dmarsili/Omni3D-Bench" target="_blank" class="text-blue-600 hover:underline">Omni3D-Bench</a>, TVP outperforms the previous best visual programming system <a href="https://glab-caltech.github.io/vadar" target="_blank" class="text-blue-600 hover:underline">VADAR</a> by +11% and GPT-4o by +22%.
+              </div>
+
+              <div class="overflow-x-auto">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Method</th>
+                      <th>Yes/No</th>
+                      <th>Multiple Choice</th>
+                      <th>Counting</th>
+                      <th>Float MRA</th>
+                      <th>Float (±10%)</th>
+                      <th>Overall (%)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="7" class="font-semibold bg-gray-50">Generic VLMs</td></tr>
+                    <tr>
+                      <td>GPT-4o</td>
+                      <td class="best-value">65.3</td>
+                      <td>60.5</td>
+                      <td>18.6</td>
+                      <td>26.7</td>
+                      <td>8.2</td>
+                      <td>27.2</td>
+                    </tr>
+                    <tr>
+                      <td>Qwen2-VL-7B-Inst</td>
+                      <td>58.7</td>
+                      <td>33.7</td>
+                      <td>12.9</td>
+                      <td>21.5</td>
+                      <td>10.0</td>
+                      <td>21.8</td>
+                    </tr>
+                    <tr>
+                      <td>LLaVA-OV-7B-Chat</td>
+                      <td class="second-best">60.0</td>
+                      <td>27.9</td>
+                      <td class="second-best">22.9</td>
+                      <td>26.8</td>
+                      <td>11.1</td>
+                      <td>23.0</td>
+                    </tr>
+                    <tr>
+                      <td>Molmo-7B-D</td>
+                      <td>46.7</td>
+                      <td>41.9</td>
+                      <td>18.6</td>
+                      <td>28.4</td>
+                      <td>8.9</td>
+                      <td>21.6</td>
+                    </tr>
+                    <tr><td colspan="7" class="font-semibold bg-gray-50">Spatial-Finetuned VLMs</td></tr>
+                    <tr>
+                      <td>SpaceMantis</td>
+                      <td>53.3</td>
+                      <td>30.2</td>
+                      <td>4.3</td>
+                      <td>21.4</td>
+                      <td>8.2</td>
+                      <td>18.2</td>
+                    </tr>
+                    <tr>
+                      <td>SpatialBot-3B</td>
+                      <td class="second-best">60.0</td>
+                      <td>30.2</td>
+                      <td>0.0</td>
+                      <td>17.7</td>
+                      <td>8.5</td>
+                      <td>18.8</td>
+                    </tr>
+                    <tr><td colspan="7" class="font-semibold bg-gray-50">Visual Programming</td></tr>
+                    <tr>
+                      <td>VisProg</td>
+                      <td>54.7</td>
+                      <td>25.9</td>
+                      <td>2.9</td>
+                      <td>0.9</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <td>ViperGPT</td>
+                      <td>56.0</td>
+                      <td>42.4</td>
+                      <td>20.0</td>
+                      <td>15.4</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <td>VADAR</td>
+                      <td>56.0</td>
+                      <td>57.6</td>
+                      <td>21.7</td>
+                      <td class="second-best">35.5</td>
+                      <td>15.9</td>
+                      <td>29.9</td>
+                    </tr>
+                    <tr class="highlight-row">
+                      <td><strong>TVP (Full System)</strong></td>
+                      <td class="second-best">60.0</td>
+                      <td class="second-best">61.6</td>
+                      <td class="best-value">24.3</td>
+                      <td class="best-value">36.5</td>
+                      <td class="best-value">19.3</td>
+                      <td class="best-value">33.3</td>
+                    </tr>
+                    <tr>
+                      <td>TVP (Example-Lib-Only, w/o Tool Lib)</td>
+                      <td class="second-best">60.0</td>
+                      <td class="second-best">61.6</td>
+                      <td>21.4</td>
+                      <td>35.5</td>
+                      <td>17.0</td>
+                      <td>31.7</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="text-sm text-gray-500 mt-3">
+                <strong>Best</strong> in bold, <span class="second-best">second best</span> underlined. Performance on Omni3D-Bench across different question types.
+              </p>
+            </div>
+
+            <!-- Tab 2: Program Analysis -->
+            <div id="tab2" class="tab-content">
+              <div class="finding-box">
+                <strong>TVP enables simpler, more accurate, and continuously improving programs.</strong>
+                (a) Program complexity steadily decreases; (b) programs gain +3.4% accuracy when switching to abstracted tools; (c) programs utilizing abstracted tools improve +38% across iterations.
+              </div>
+
+              <div class="three-panel-grid">
+                <div class="figure-container">
+                  <img src="imgs/complexity_evol_acc_evol_with_newAPI_panela.png" alt="Complexity Reduction" class="w-full rounded-lg" />
+                  <p class="figure-caption text-center">
+                    <strong>(a) CNN reduction</strong> as abstracted tools replace multi-step patterns.
+                  </p>
+                </div>
+                <div class="figure-container">
+                  <img src="imgs/complexity_evol_acc_evol_with_newAPI_panelb.png" alt="Accuracy Gain" class="w-full rounded-lg" />
+                  <p class="figure-caption text-center">
+                    <strong>(b) Accuracy gains</strong> +3.4% when switching from basic tools to abstracted tools.
+                  </p>
+                </div>
+                <div class="figure-container">
+                  <img src="imgs/complexity_evol_acc_evol_with_newAPI_panelc.png" alt="Iterative Improvement" class="w-full rounded-lg" />
+                  <p class="figure-caption text-center">
+                    <strong>(c) Iterative improvement</strong> (+38%) with abstracted tools (22.4% → 31.0%).
+                  </p>
+                </div>
+              </div>
+              <p class="figure-caption mt-4">
+                <strong>Figure:</strong> TVP's closed-loop learning produces three measurable benefits. These improvements stem from experience-grounded tool creation: each abstracted function encapsulates recurring high-quality program solutions and passes rigorous validation.
+              </p>
+            </div>
+
+            <!-- Tab 3: Complexity Effects -->
+            <div id="tab3" class="tab-content">
+              <div class="finding-box">
+                <strong>Tool abstraction facilitates progressive self-improvement, especially on hard problems.</strong>
+                On the hardest batch, TVP-Full (= with active tool creation) shows the most significant improvement trajectory, starting at -4.5% relative to Example-Lib-Only (=no tool creation) variant in iteration 1, but ultimately surpassing it by +6.7% in iteration 3.
+              </div>
+              <div class="grid gap-4 mt-4" style="grid-template-columns: 45% 55%;">
+                <div class="figure-container">
+                    <img src="imgs/complexity_buckets_overall_performance.png" alt="Complexity Comparison" class="w-full rounded-lg" />
+                    <p class="figure-caption">
+                        <strong>Figure:</strong> Performance comparison across question complexity levels (Easy, Medium, Hard). TVP-full-system delivers the best performance on both Easy and Hard batches.
+                    </p>
+                </div>
+                <div class="figure-container">
+                    <img src="imgs/complexity_buckets_delta_examplelibonly.png" alt="Performance Delta" class="w-full rounded-lg" />
+                    <p class="figure-caption">
+                        <strong>Figure:</strong> Performance delta between TVP (Full) and TVP (Example-Lib-Only) across iterations for each complexity level. The hardest questions show the largest improvement (+6.7% by iteration 3) enabled by active tool creation.
+                    </p>
+                </div>
+              </div>
+              <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                <p class="text-gray-700">
+                  <strong>Key Insight:</strong> For easy questions, thoroughly validated created tools avoid potential reimplementation errors, leading to more stable performance. For harder questions, created tools provide simpler solution steps that eliminate complicated logic, thus easing the program reasoning. 
+                </p>
+              </div>
+            </div>
+            
+            <!-- Tab 4: Model Scaling -->
+            <div id="tab4" class="tab-content">
+              <div class="finding-box">
+                <strong>TVP shows a clear scaling trend with backbone model sizes.</strong>
+                Using an open-source 32B model, TVP achieves competitive performance close to the GPT-4o-backed variant (30.7% vs. 31.3%).
+              </div>
+            
+              <div class="grid gap-6 mt-6" style="grid-template-columns: 30% 1fr;">
+                <!-- Figure (Left) -->
+                <div class="figure-container">
+                  <img src="imgs/scaling_trend.png" alt="Model Scaling Trend" class="w-full rounded-lg" />
+                  <p class="figure-caption">
+                    <strong>Figure:</strong> TVP performance scales consistently with backbone model capacity.
+                  </p>
+                </div>
+            
+                <!-- Text Explanation (Right) -->
+                <div class="flex flex-col gap-4">
+                  <div class="p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Scaling Behavior</h4>
+                    <p class="text-gray-700">Using the Qwen2.5-Coder-Instruct family (7B → 14B → 32B), TVP exhibits clear performance improvement with increasing model capacity. TVP's architecture is model-agnostic and holds future potential as foundation models improve.
+                    </p>
+                  </div>
+                  <div class="p-4 bg-green-50 rounded-lg">
+                    <h4 class="font-semibold text-green-800 mb-2">Practical Implication</h4>
+                    <p class="text-gray-700">TVP does not rely on proprietary-specific optimal LLMs but can achieve strong performance with more accessible open-source alternatives, making this transductive tool creation paradigm highly accessible for research and deployment.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 5: Library Evolution -->
+            <div id="tab5" class="tab-content">
+              <div class="finding-box">
+                <strong>TVP's dual libraries evolve steadily through closed-loop dual-library interaction.</strong>The Example Library grows to 304 high-quality solutions while the Tool Library expands strategically—creating 61 tools total but maintaining 11 active abstractions through periodic merging.
+              </div>
+            
+              <div class="grid gap-6 mt-6" style="grid-template-columns: 70% 1fr;">
+                <!-- Figure (Left) -->
+                <div class="figure-container">
+                  <img src="imgs/evol_log.png" alt="Library Evolution" class="w-full rounded-lg" />
+                  <p class="figure-caption">
+                    <strong>Figure:</strong> Evolution trajectory of TVP's dual libraries. The Example Library grows steadily to 304 solutions while the Tool Library expands with controlled maintenance.
+                  </p>
+                </div>
+              
+                <!-- Text Explanation (Right) -->
+                <div class="flex flex-col gap-4">
+                  <div class="p-4 bg-purple-50 rounded-lg">
+                    <h4 class="font-semibold text-purple-800 mb-2">Example Library</h4>
+                    <p class="text-gray-700 text-sm">
+                      Grows from 0 to <strong>304</strong> high-quality solutions, accumulating concrete problem-solving experience that grounds tool abstraction.
+                    </p>
+                  </div>
+                  <div class="p-4 bg-orange-50 rounded-lg">
+                    <h4 class="font-semibold text-orange-800 mb-2">Tool Library</h4>
+                    <p class="text-gray-700 text-sm">
+                      <strong>61</strong> tools created total, <strong>11</strong> remain active after periodic merging to reduce redundancy and improve tool selection.
+                    </p>
+                  </div>
+                  <div class="p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Key Insight</h4>
+                    <p class="text-gray-700 text-sm">
+                      Selective retention ensures a manageable Tool Library capturing genuinely reusable abstractions with minimal redundancy.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Generalization Section -->
+        <div class="container mx-auto px-6 mb-6">
+          <div class="card">
+            <h2 class="section-title">Generalizing To Unseen Spatial Reasoning Queries</h2>
+            
+            <p class="text-gray-700 mb-4">
+              Through TVP's transductive paradigm, tools abstracted from experience on one benchmark should capture fundamental reasoning patterns that generalize to new questions. As shown below, TVP's dual libraries, built only on Omni3D-Bench, transfer to unseen spatial reasoning queries from <a href="https://haoningwu3639.github.io/SpatialScore" target="_blank" class="text-blue-600 hover:underline">SpatialScore-Hard collection</a> without any modification.
+            </p>
+
+            <div class="finding-box">
+              <strong>Transductively created tools generalize with strong zero-shot performance.</strong>
+              TVP's experience-grounded tools and libraries still lead to superior solutions even in zero-shot transfer.
+            </div>
+
+            <div class="aligned-grid mt-6" style="grid-template-columns: 65% 35%;">
+              <!-- Table -->
+              <div>
+                <h3 class="font-semibold mb-3">Results on Sampled SpatialScore-Hard Collection</h3>
+                <div class="overflow-x-auto flex-1">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Method</th>
+                        <th>3DSR-Bench</th>
+                        <th>SpatialSense</th>
+                        <th>VG-Bench</th>
+                        <th>Overall</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td colspan="5" class="font-semibold bg-gray-50">Generic VLMs</td></tr>
+                      <tr>
+                        <td>GPT-4o</td>
+                        <td class="second-best">52.1</td>
+                        <td>46.5</td>
+                        <td>20.3</td>
+                        <td class="second-best">42.6</td>
+                      </tr>
+                      <tr>
+                        <td>LLaVA-OV-7B-Chat</td>
+                        <td>12.4</td>
+                        <td>9.9</td>
+                        <td>9.4</td>
+                        <td>10.9</td>
+                      </tr>
+                      <tr>
+                        <td>Qwen2-VL-Inst</td>
+                        <td>49.6</td>
+                        <td>32.4</td>
+                        <td>7.8</td>
+                        <td>34.4</td>
+                      </tr>
+                      <tr>
+                        <td>Molmo-7B-D</td>
+                        <td>41.3</td>
+                        <td>54.9</td>
+                        <td>12.5</td>
+                        <td>37.9</td>
+                      </tr>
+                      <tr><td colspan="5" class="font-semibold bg-gray-50">Spatial-Finetuned VLMs</td></tr>
+                      <tr>
+                        <td>SpaceMantis</td>
+                        <td>37.2</td>
+                        <td>19.7</td>
+                        <td>7.8</td>
+                        <td>25.0</td>
+                      </tr>
+                      <tr>
+                        <td>SpatialBot-3B</td>
+                        <td>20.7</td>
+                        <td class="best-value">62.0</td>
+                        <td>6.2</td>
+                        <td>28.5</td>
+                      </tr>
+                      <tr><td colspan="5" class="font-semibold bg-gray-50">Visual Programming</td></tr>
+                      <tr>
+                        <td>VADAR</td>
+                        <td>24.8</td>
+                        <td>40.8</td>
+                        <td class="second-best">39.1</td>
+                        <td>32.8</td>
+                      </tr>
+                      <tr class="highlight-row">
+                        <td><strong>TVP<sub>Generalize</sub></strong></td>
+                        <td class="best-value">52.9</td>
+                        <td class="second-best">59.2</td>
+                        <td class="best-value">43.8</td>
+                        <td class="best-value">52.3</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p class="text-sm text-gray-500 mt-2">
+                    TVP generalizes zero-shot with only libraries built from Omni3D-Bench.
+                  </p>
+                </div>
+              </div>
+            
+              <!-- Figure -->
+              <div>
+                <h3 class="font-semibold mb-3">Category-wise Performance</h3>
+                <div class="figure-container flex-1">
+                  <img src="imgs/spatialscore_category_performance.png" alt="Category-wise Performance" class="w-full rounded-lg" />
+                  <p class="figure-caption">
+                    <strong>Figure:</strong> TVP's libraries transfer well on SpatialScore-Hard, with particular strength on 3D spatial and depth/distance reasoningcategories.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+              <h4 class="font-semibold text-blue-800 mb-2">Why Does Transfer Work?</h4>
+              <p class="text-gray-700 text-sm">
+                Strong transfer occurs because TVP's transductive tool creation inherently produces general functions through three mechanisms:
+                (1) Tools are abstracted from clusters of similar problems, forcing abstractions to capture shared computational logic;
+                (2) Rigorous validation ensures the abstraction generalizes correctly within its cluster;
+                (3) Tool maintenance merges functionally similar abstractions, leading to more general functions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Citation Section -->
+        <div class="container mx-auto px-6 mb-6">
+          <div class="card">
+            <h2 class="section-title">Citation</h2>
+            <div class="citation-box">@article{wu2025transductive,
+  title={Transductive Visual Programming: Evolving Tool Libraries from Experience for Spatial Reasoning},
+  author={Wu, Shengguang and Wang, Xiaohan and Zhang, Yuhui and Zhu, Hao and Yeung-Levy, Serena},
+  journal={arXiv preprint arXiv:2512.20934},
+  year={2025}
+}</div>
+          </div>
+        </div>
+
+        <!-- Acknowledgement Section -->
+        <!-- <div class="container mx-auto px-6 mb-6">
+          <div class="card">
+            <h2 class="section-title">Acknowledgement</h2>
+            <p class="text-gray-500 italic"> -->
+              <!-- Acknowledgements to be added -->
+            <!-- </p>
+          </div>
+        </div> -->
+
+        <!-- Footer -->
+        <footer class="container mx-auto px-6 py-8 border-t">
+          <p class="text-center text-gray-500 text-sm">
+            TVP: Transductive Visual Programming
+          </p>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      function switchTab(tabId) {
+        // Remove active class from all buttons and contents
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Add active class to selected tab
+        document.getElementById(tabId).classList.add('active');
+        
+        // Find and activate the corresponding button
+        const buttons = document.querySelectorAll('.tab-btn');
+        const tabIndex = ['tab1', 'tab2', 'tab3', 'tab4', 'tab5'].indexOf(tabId);
+        if (tabIndex >= 0) {
+          buttons[tabIndex].classList.add('active');
+        }
+      }
+    </script>
+
+    <script>
+      // Video Player Controls
+      const video = document.getElementById('methodVideo');
+      const container = document.getElementById('methodVideoContainer');
+      const progressBar = document.getElementById('progressBar');
+      const progressContainer = document.getElementById('progressContainer');
+      const playIcon = document.getElementById('playIcon');
+      const pauseIcon = document.getElementById('pauseIcon');
+      const currentTimeEl = document.getElementById('currentTime');
+      const durationEl = document.getElementById('duration');
+      const playOverlay = document.getElementById('playOverlay');
+    
+      // Format time as M:SS
+      function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+      }
+    
+      // Update duration when metadata loads
+      video.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(video.duration);
+      });
+    
+      // Update progress bar and time during playback
+      video.addEventListener('timeupdate', () => {
+        const percent = (video.currentTime / video.duration) * 100;
+        progressBar.style.width = `${percent}%`;
+        currentTimeEl.textContent = formatTime(video.currentTime);
+      });
+    
+      // Handle video end
+      video.addEventListener('ended', () => {
+        container.classList.remove('playing', 'paused');
+        container.classList.add('ended');
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+      });
+    
+      // Play video
+      function playVideo() {
+        video.play();
+        container.classList.add('playing');
+        container.classList.remove('paused', 'ended');
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+      }
+    
+      // Toggle play/pause
+      function togglePlayPause() {
+        if (video.paused || video.ended) {
+          playVideo();
+        } else {
+          video.pause();
+          container.classList.remove('playing');
+          container.classList.add('paused');
+          playIcon.style.display = 'block';
+          pauseIcon.style.display = 'none';
+        }
+      }
+    
+      // Replay video
+      function replayVideo() {
+        video.currentTime = 0;
+        playVideo();
+      }
+    
+      // Seek video on progress bar click
+      function seekVideo(event) {
+        const rect = progressContainer.getBoundingClientRect();
+        const percent = (event.clientX - rect.left) / rect.width;
+        video.currentTime = percent * video.duration;
+        
+        // If video ended and user seeks, remove ended state
+        if (container.classList.contains('ended')) {
+          container.classList.remove('ended');
+        }
+      }
+    
+      // Enable dragging on progress bar
+      let isDragging = false;
+      
+      progressContainer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        seekVideo(e);
+      });
+      
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          seekVideo(e);
+        }
+      });
+      
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+    
+      // Fullscreen toggle
+      function toggleFullscreen() {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          container.requestFullscreen();
+        }
+      }
+    
+      // Click on video to toggle play/pause
+      video.addEventListener('click', togglePlayPause);
+    
+      // Keyboard controls
+      document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        if (e.code === 'Space') {
+          e.preventDefault();
+          togglePlayPause();
+        } else if (e.code === 'ArrowLeft') {
+          video.currentTime = Math.max(0, video.currentTime - 5);
+        } else if (e.code === 'ArrowRight') {
+          video.currentTime = Math.min(video.duration, video.currentTime + 5);
+        }
+      });
+    </script>
+
+  </body>
+</html>
